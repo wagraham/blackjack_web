@@ -5,6 +5,7 @@ set :sessions, true
 
 BLACKJACK_AMOUNT = 21 #constants, so that you don't have to manually change each entry of 21, if you want blackjack to be 23, e.g.
 DEALER_MIN_HIT = 17
+INITIAL_POT_AMOUNT = 500
 
 helpers do
   def calculate_total(cards)
@@ -51,21 +52,21 @@ helpers do
 
   def winner!(msg)
     @play_again = true
-    @success = "<strong>#{session[:player_name]} wins!</strong> #{msg}"
+    @winner = "<strong>#{session[:player_name]} wins!</strong> #{msg}"
     @show_hit_or_stay_buttons = false
     session[:player_pot] = session[:player_pot] + session[:player_bet]
   end
 
   def loser!(msg)
     @play_again = true
-    @error = "<strong>#{session[:player_name]} loses.</strong> #{msg}"
+    @loser = "<strong>#{session[:player_name]} loses.</strong> #{msg}"
     @show_hit_or_stay_buttons = false
     session[:player_pot] = session[:player_pot] - session[:player_bet]
   end
 
   def tie!(msg)
     @play_again = true
-    @success = "<strong> It's a tie!</strong> #{msg}"
+    @winner = "<strong> It's a tie!</strong> #{msg}"
     @show_hit_or_stay_buttons = false
   end
 
@@ -85,7 +86,7 @@ get '/' do
 end
 
 get '/new_player' do
-  session[:player_pot] = 500
+  session[:player_pot] = INITIAL_POT_AMOUNT
   erb :new_player
 end
 
@@ -144,7 +145,7 @@ post '/game/player/hit' do
   elsif player_total > BLACKJACK_AMOUNT
     loser!("Sorry, it looks like #{session[:player_name]} busted at #{player_total}.")
   end
-  erb :game # renders game template, rather than going back to /game which would reset the game. 
+  erb :game, layout: false # renders game template, rather than going back to /game which would reset the game. 
 end
 
 post '/game/player/stay' do
@@ -172,7 +173,7 @@ get '/game/dealer' do
     @show_dealer_hit_button = true     
   end
 
-  erb :game
+  erb :game, layout: false
 end
 
 post '/game/dealer/hit' do
