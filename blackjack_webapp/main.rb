@@ -1,7 +1,9 @@
 require 'rubygems'
 require 'sinatra'
 
-set :sessions, true
+use Rack::Session::Cookie, :key => 'rack.session',
+                           :path => '/',
+                           :secret => 'random_string_here' 
 
 BLACKJACK_AMOUNT = 21 #constants, so that you don't have to manually change each entry of 21, if you want blackjack to be 23, e.g.
 DEALER_MIN_HIT = 17
@@ -195,7 +197,7 @@ get '/game/compare' do
     tie!("Both #{session[:player_name]} and the dealer stayed at #{player_total}.")
   end
     
-  erb :game
+  erb :game, layout: false
 end
 
 get '/game_over' do
